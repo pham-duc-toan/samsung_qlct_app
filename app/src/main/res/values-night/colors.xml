@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme overrides. Only names listed here change; everything else
+         (brand, semantic and category colors) is inherited from values/colors.xml. -->
+    <color name="background">#12121C</color>
+    <color name="surface">#1E1E2D</color>
+    <color name="surface_variant">#26263A</color>
+
+    <color name="text_primary">#ECECF3</color>
+    <color name="text_secondary">#9A9FB5</color>
+    <color name="text_hint">#6B7086</color>
+    <color name="divider">#2A2A3C</color>
+
+    <color name="toggle_bg">#2A2A3C</color>
+    <color name="chip_bg">#26263A</color>
+    <color name="cat_selected_bg">#2E2A4D</color>
+</resources>

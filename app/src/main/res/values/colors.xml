@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand -->
+    <color name="primary">#6C63FF</color>
+    <color name="primary_dark">#5A52D5</color>
+    <color name="primary_light">#A29BFE</color>
+    <color name="secondary">#00CEC9</color>
+
+    <!-- Semantic -->
+    <color name="income">#00B894</color>
+    <color name="income_bg">#E4F9F2</color>
+    <color name="expense">#FF6B6B</color>
+    <color name="expense_bg">#FFEBEB</color>
+
+    <!-- Surfaces -->
+    <color name="background">#F4F5FD</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card_shadow">#1A6C63FF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#2D3436</color>
+    <color name="text_secondary">#8A8FA6</color>
+    <color name="text_hint">#B4B9CC</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="divider">#EDEEF5</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Category palette (also used by the pie chart) -->
+    <color name="cat_food">#FF6B6B</color>
+    <color name="cat_coffee">#C17F52</color>
+    <color name="cat_transport">#4ECDC4</color>
+    <color name="cat_shopping">#FF9F43</color>
+    <color name="cat_bills">#5F72FF</color>
+    <color name="cat_entertainment">#FF7ED4</color>
+    <color name="cat_health">#26DE81</color>
+    <color name="cat_education">#4B7BEC</color>
+    <color name="cat_home">#A55EEA</color>
+    <color name="cat_other">#A5B1C2</color>
+
+    <!-- Income category palette -->
+    <color name="cat_salary">#00B894</color>
+    <color name="cat_bonus">#F7B731</color>
+    <color name="cat_invest">#45AAF2</color>
+    <color name="cat_gift">#FD79A8</color>
+
+    <!-- Extracted surfaces (overridden in values-night for dark mode) -->
+    <color name="warning">#FF9F43</color>
+    <color name="toggle_bg">#F0F1F7</color>
+    <color name="chip_bg">#F3F3FB</color>
+    <color name="cat_selected_bg">#EEECFF</color>
+    <color name="surface_variant">#F3F3FB</color>
+</resources>

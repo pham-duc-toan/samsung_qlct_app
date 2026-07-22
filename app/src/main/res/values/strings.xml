@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quản Lý Chi Tiêu</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Tổng quan</string>
+    <string name="nav_transactions">Giao dịch</string>
+    <string name="nav_stats">Thống kê</string>
+
+    <!-- Home -->
+    <string name="hello">Xin chào 👋</string>
+    <string name="current_balance">Số dư hiện tại</string>
+    <string name="income">Thu nhập</string>
+    <string name="expense">Chi tiêu</string>
+    <string name="recent_transactions">Giao dịch gần đây</string>
+    <string name="see_all">Xem tất cả</string>
+    <string name="empty_transactions">Chưa có giao dịch nào.\nNhấn nút + để thêm mới.</string>
+
+    <!-- Transactions -->
+    <string name="all_transactions">Tất cả giao dịch</string>
+    <string name="prev_month">Tháng trước</string>
+    <string name="next_month">Tháng sau</string>
+
+    <!-- Stats -->
+    <string name="statistics">Thống kê chi tiêu</string>
+    <string name="expense_by_category">Chi tiêu theo danh mục</string>
+    <string name="no_stat_data">Chưa có dữ liệu chi tiêu trong tháng này.</string>
+    <string name="total_spent">Tổng chi</string>
+
+    <!-- Add / Edit -->
+    <string name="add_transaction">Thêm giao dịch</string>
+    <string name="edit_transaction">Sửa giao dịch</string>
+    <string name="amount">Số tiền</string>
+    <string name="type_expense">Chi tiền</string>
+    <string name="type_income">Thu tiền</string>
+    <string name="category">Danh mục</string>
+    <string name="note">Ghi chú</string>
+    <string name="note_hint">Nhập ghi chú (không bắt buộc)</string>
+    <string name="date">Ngày</string>
+    <string name="save">Lưu giao dịch</string>
+    <string name="delete">Xóa</string>
+
+    <!-- Messages -->
+    <string name="err_amount">Vui lòng nhập số tiền hợp lệ</string>
+    <string name="err_category">Vui lòng chọn danh mục</string>
+    <string name="saved">Đã lưu giao dịch</string>
+    <string name="deleted">Đã xóa giao dịch</string>
+    <string name="delete_confirm_title">Xóa giao dịch?</string>
+    <string name="delete_confirm_msg">Bạn có chắc muốn xóa giao dịch này không?</string>
+    <string name="cancel">Hủy</string>
+
+    <!-- Categories: expense -->
+    <string name="cat_food">Ăn uống</string>
+    <string name="cat_coffee">Cà phê</string>
+    <string name="cat_transport">Di chuyển</string>
+    <string name="cat_shopping">Mua sắm</string>
+    <string name="cat_bills">Hóa đơn</string>
+    <string name="cat_entertainment">Giải trí</string>
+    <string name="cat_health">Sức khỏe</string>
+    <string name="cat_education">Giáo dục</string>
+    <string name="cat_home">Nhà cửa</string>
+    <string name="cat_other">Khác</string>
+
+    <!-- Categories: income -->
+    <string name="cat_salary">Lương</string>
+    <string name="cat_bonus">Thưởng</string>
+    <string name="cat_invest">Đầu tư</string>
+    <string name="cat_gift">Quà tặng</string>
+    <string name="cat_other_income">Khác</string>
+
+    <!-- Bottom nav / Settings -->
+    <string name="nav_settings">Cài đặt</string>
+    <string name="settings">Cài đặt</string>
+
+    <!-- Search & filter -->
+    <string name="search_hint">Tìm theo ghi chú, danh mục…</string>
+    <string name="filter_all">Tất cả</string>
+    <string name="filter_income">Thu nhập</string>
+    <string name="filter_expense">Chi tiêu</string>
+    <string name="no_results">Không tìm thấy giao dịch phù hợp.</string>
+
+    <!-- Budget -->
+    <string name="budget_title">Hạn mức chi tiêu tháng</string>
+    <string name="budget_not_set">Chưa đặt hạn mức — chạm để thiết lập</string>
+    <string name="budget_spent_format">Đã chi %1$s / %2$s</string>
+    <string name="budget_remaining_format">Còn lại %1$s</string>
+    <string name="budget_over_format">Vượt hạn mức %1$s</string>
+    <string name="set_budget">Đặt hạn mức tháng</string>
+    <string name="budget_input_hint">Số tiền hạn mức</string>
+    <string name="budget_saved">Đã lưu hạn mức</string>
+    <string name="budget_cleared">Đã xóa hạn mức</string>
+    <string name="clear">Xóa hạn mức</string>
+
+    <!-- Appearance / theme -->
+    <string name="appearance">Giao diện</string>
+    <string name="appearance_subtitle">Chọn chế độ sáng / tối</string>
+    <string name="theme_light">Sáng</string>
+    <string name="theme_dark">Tối</string>
+    <string name="theme_system">Theo hệ thống</string>
+
+    <!-- Export / data -->
+    <string name="export_csv">Xuất dữ liệu (CSV)</string>
+    <string name="export_subtitle">Chia sẻ toàn bộ giao dịch ra file CSV</string>
+    <string name="export_empty">Chưa có giao dịch để xuất</string>
+    <string name="export_share_title">Chia sẻ file CSV</string>
+    <string name="export_fail">Không thể xuất file</string>
+    <string name="delete_all">Xóa toàn bộ dữ liệu</string>
+    <string name="delete_all_subtitle">Xóa tất cả giao dịch đã lưu</string>
+    <string name="delete_all_confirm">Xóa tất cả giao dịch? Hành động này không thể hoàn tác.</string>
+    <string name="delete_all_done">Đã xóa toàn bộ dữ liệu</string>
+
+    <!-- Section labels -->
+    <string name="budget_section">Ngân sách</string>
+    <string name="data_section">Dữ liệu</string>
+    <string name="about">Giới thiệu</string>
+    <string name="about_value">Quản Lý Chi Tiêu • Phiên bản 1.0</string>
+
+    <!-- 6-month trend chart -->
+    <string name="trend_6_months">Thu chi 6 tháng gần đây</string>
+
+    <!-- Per-category budgets -->
+    <string name="category_budget_title">Ngân sách theo danh mục</string>
+    <string name="category_budget_subtitle">Đặt hạn mức cho từng danh mục chi</string>
+    <string name="cat_budget_hint">Chạm để đặt hạn mức</string>
+    <string name="set_amount_for">Hạn mức: %1$s</string>
+
+    <!-- Daily reminder -->
+    <string name="reminder_section">Nhắc nhở</string>
+    <string name="reminder_title">Nhắc nhở hằng ngày</string>
+    <string name="reminder_off">Đang tắt</string>
+    <string name="reminder_at">Nhắc lúc %1$s</string>
+    <string name="reminder_channel_name">Nhắc nhở chi tiêu</string>
+    <string name="reminder_notif_title">Đừng quên ghi chi tiêu 💰</string>
+    <string name="reminder_notif_text">Chạm để thêm giao dịch hôm nay của bạn.</string>
+    <string name="notif_denied">Cần cấp quyền thông báo để bật nhắc nhở</string>
+</resources>
