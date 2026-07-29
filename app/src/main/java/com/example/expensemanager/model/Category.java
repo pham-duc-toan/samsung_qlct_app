@@ -19,14 +19,14 @@ import java.util.List;
 public class Category {
 
     public final String key;
-    public final int nameRes;
+    public final String name;   // resolved display text (from a string resource, or literal for custom)
     public final int iconRes;
     public final int colorRes;
     public final boolean income;
 
-    public Category(String key, int nameRes, int iconRes, int colorRes, boolean income) {
+    public Category(String key, String name, int iconRes, int colorRes, boolean income) {
         this.key = key;
-        this.nameRes = nameRes;
+        this.name = name;
         this.iconRes = iconRes;
         this.colorRes = colorRes;
         this.income = income;

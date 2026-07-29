@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.expensemanager.CategoryBudgetActivity;
+import com.example.expensemanager.CategoryManageActivity;
 import com.example.expensemanager.R;
 import com.example.expensemanager.db.DatabaseHelper;
 import com.example.expensemanager.model.Transaction;
@@ -83,6 +84,8 @@ public class SettingsFragment extends Fragment {
                 AppDialogs.showBudget(requireContext(), prefs, this::refresh));
         view.findViewById(R.id.row_category_budget).setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), CategoryBudgetActivity.class)));
+        view.findViewById(R.id.row_manage_category).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), CategoryManageActivity.class)));
         view.findViewById(R.id.row_theme).setOnClickListener(v -> showThemeDialog());
         view.findViewById(R.id.row_reminder).setOnClickListener(v -> showTimePicker());
         switchReminder.setOnClickListener(v -> onReminderToggled());

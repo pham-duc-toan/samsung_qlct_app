@@ -124,7 +124,7 @@ public class TransactionsFragment extends Fragment {
             }
             if (!query.isEmpty()) {
                 String note = t.note == null ? "" : t.note.toLowerCase(Locale.getDefault());
-                String category = getString(t.category().nameRes).toLowerCase(Locale.getDefault());
+                String category = t.category().name.toLowerCase(Locale.getDefault());
                 if (!note.contains(query) && !category.contains(query)) {
                     continue;
                 }

@@ -81,7 +81,7 @@ public class CategoryPickAdapter extends RecyclerView.Adapter<CategoryPickAdapte
             int color = ContextCompat.getColor(itemView.getContext(), c.colorRes);
             icon.setImageResource(c.iconRes);
             icon.setBackgroundTintList(ColorStateList.valueOf(color));
-            name.setText(c.nameRes);
+            name.setText(c.name);
             itemView.setSelected(selected);
         }
     }

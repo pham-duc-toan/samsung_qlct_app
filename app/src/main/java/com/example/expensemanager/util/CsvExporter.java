@@ -38,7 +38,7 @@ public class CsvExporter {
                 writer.write("Ngay,Loai,Danh muc,So tien,Ghi chu\n");
                 for (Transaction t : transactions) {
                     Category category = t.category();
-                    String name = context.getString(category.nameRes);
+                    String name = category.name;
                     String type = t.isIncome() ? "Thu" : "Chi";
                     String date = DateUtil.formatDate(t.date);
                     long amount = Math.round(t.amount);

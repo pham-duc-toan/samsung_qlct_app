@@ -125,6 +125,22 @@
     <!-- 6-month trend chart -->
     <string name="trend_6_months">Thu chi 6 tháng gần đây</string>
 
+    <!-- Manage categories -->
+    <string name="manage_category_title">Quản lý danh mục</string>
+    <string name="manage_category_subtitle">Thêm, sửa, xóa danh mục thu/chi</string>
+    <string name="add_category">Thêm danh mục</string>
+    <string name="edit_category">Sửa danh mục</string>
+    <string name="cat_name">Tên danh mục</string>
+    <string name="cat_name_hint">Ví dụ: Du lịch, Thú cưng…</string>
+    <string name="cat_icon">Biểu tượng</string>
+    <string name="cat_color">Màu sắc</string>
+    <string name="cat_save">Lưu danh mục</string>
+    <string name="err_cat_name">Vui lòng nhập tên danh mục</string>
+    <string name="cat_saved">Đã lưu danh mục</string>
+    <string name="cat_deleted">Đã xóa danh mục</string>
+    <string name="delete_cat_title">Xóa danh mục?</string>
+    <string name="delete_cat_msg">Giao dịch thuộc danh mục này sẽ hiển thị là “Khác”. Bạn có chắc muốn xóa?</string>
+
     <!-- Per-category budgets -->
     <string name="category_budget_title">Ngân sách theo danh mục</string>
     <string name="category_budget_subtitle">Đặt hạn mức cho từng danh mục chi</string>

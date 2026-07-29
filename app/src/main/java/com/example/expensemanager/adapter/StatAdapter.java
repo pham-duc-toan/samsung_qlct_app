@@ -82,7 +82,7 @@ public class StatAdapter extends RecyclerView.Adapter<StatAdapter.VH> {
             int color = ContextCompat.getColor(itemView.getContext(), item.category.colorRes);
             icon.setImageResource(item.category.iconRes);
             icon.setBackgroundTintList(ColorStateList.valueOf(color));
-            name.setText(item.category.nameRes);
+            name.setText(item.category.name);
             percent.setText(item.percent + "%");
             amount.setText(CurrencyUtil.format(item.amount));
             progress.setProgress(item.percent);

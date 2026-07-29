@@ -124,25 +124,105 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_CAT, null, v);
     }
 
-    /** Reads the category table and resolves resource entry names back to ids. */
+    /**
+     * Raw category row. Holds the resolved display name (from a string resource,
+     * or the literal text for user-added categories) plus the icon/color resource
+     * entry names, which the category editor needs to preselect its pickers.
+     */
+    public static class CategoryDef {
+        public final String key;
+        public final String displayName;
+        public final String icon;
+        public final String color;
+        public final boolean income;
+
+        public CategoryDef(String key, String displayName, String icon, String color, boolean income) {
+            this.key = key;
+            this.displayName = displayName;
+            this.icon = icon;
+            this.color = color;
+            this.income = income;
+        }
+    }
+
+    /** All category rows, ordered, with names resolved to display text. */
+    public List<CategoryDef> getCategoryDefs(Context context) {
+        List<CategoryDef> list = new ArrayList<>();
+        Cursor c = getReadableDatabase().query(TABLE_CAT, null, null, null, null, null, CAT_SORT + " ASC");
+        while (c.moveToNext()) {
+            list.add(defFromCursor(context, c));
+        }
+        c.close();
+        return list;
+    }
+
+    /** A single category row by key, or null if it no longer exists. */
+    public CategoryDef getCategoryDef(Context context, String key) {
+        Cursor c = getReadableDatabase().query(TABLE_CAT, null,
+                CAT_KEY + "=?", new String[]{key}, null, null, null);
+        CategoryDef def = c.moveToFirst() ? defFromCursor(context, c) : null;
+        c.close();
+        return def;
+    }
+
+    private CategoryDef defFromCursor(Context context, Cursor c) {
+        String key = c.getString(c.getColumnIndexOrThrow(CAT_KEY));
+        String name = c.getString(c.getColumnIndexOrThrow(CAT_NAME));
+        String icon = c.getString(c.getColumnIndexOrThrow(CAT_ICON));
+        String color = c.getString(c.getColumnIndexOrThrow(CAT_COLOR));
+        boolean income = c.getInt(c.getColumnIndexOrThrow(CAT_INCOME)) == 1;
+        // Seeded rows store a string-resource entry name; custom rows store literal text.
+        int nameResId = context.getResources().getIdentifier(name, "string", context.getPackageName());
+        String display = nameResId != 0 ? context.getString(nameResId) : name;
+        return new CategoryDef(key, display, icon, color, income);
+    }
+
+    /** Resolves category rows into ready-to-render {@link Category} objects. */
     public List<Category> getCategories(Context context) {
         List<Category> list = new ArrayList<>();
         String pkg = context.getPackageName();
         Resources res = context.getResources();
-        Cursor c = getReadableDatabase().query(TABLE_CAT, null, null, null, null, null, CAT_SORT + " ASC");
-        while (c.moveToNext()) {
-            String key = c.getString(c.getColumnIndexOrThrow(CAT_KEY));
-            String name = c.getString(c.getColumnIndexOrThrow(CAT_NAME));
-            String icon = c.getString(c.getColumnIndexOrThrow(CAT_ICON));
-            String color = c.getString(c.getColumnIndexOrThrow(CAT_COLOR));
-            boolean income = c.getInt(c.getColumnIndexOrThrow(CAT_INCOME)) == 1;
-            int nameRes = res.getIdentifier(name, "string", pkg);
-            int iconRes = res.getIdentifier(icon, "drawable", pkg);
-            int colorRes = res.getIdentifier(color, "color", pkg);
-            list.add(new Category(key, nameRes, iconRes, colorRes, income));
+        for (CategoryDef d : getCategoryDefs(context)) {
+            int iconRes = res.getIdentifier(d.icon, "drawable", pkg);
+            int colorRes = res.getIdentifier(d.color, "color", pkg);
+            list.add(new Category(d.key, d.displayName, iconRes, colorRes, d.income));
+        }
+        return list;
+    }
+
+    public void insertCategory(String key, String name, String icon, String color, boolean income) {
+        ContentValues v = new ContentValues();
+        v.put(CAT_KEY, key);
+        v.put(CAT_NAME, name);
+        v.put(CAT_ICON, icon);
+        v.put(CAT_COLOR, color);
+        v.put(CAT_INCOME, income ? 1 : 0);
+        v.put(CAT_SORT, nextSort());
+        getWritableDatabase().insert(TABLE_CAT, null, v);
+    }
+
+    public int updateCategory(String key, String name, String icon, String color, boolean income) {
+        ContentValues v = new ContentValues();
+        v.put(CAT_NAME, name);
+        v.put(CAT_ICON, icon);
+        v.put(CAT_COLOR, color);
+        v.put(CAT_INCOME, income ? 1 : 0);
+        return getWritableDatabase().update(TABLE_CAT, v, CAT_KEY + "=?", new String[]{key});
+    }
+
+    public int deleteCategory(String key) {
+        return getWritableDatabase().delete(TABLE_CAT, CAT_KEY + "=?", new String[]{key});
+    }
+
+    private int nextSort() {
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT COALESCE(MAX(" + CAT_SORT + "),-1)+1 FROM " + TABLE_CAT, null);
+        int next = 0;
+        if (c.moveToFirst()) {
+            next = c.getInt(0);
         }
         c.close();
-        return list;
+        return next;
     }
 
     // -------------------------------------------------------- Transaction seed

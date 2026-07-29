@@ -64,7 +64,7 @@ public class CategoryBudgetActivity extends AppCompatActivity {
     }
 
     private void onPick(CategoryBudgetAdapter.Item item) {
-        String title = getString(R.string.set_amount_for, getString(item.category.nameRes));
+        String title = getString(R.string.set_amount_for, item.category.name);
         AppDialogs.showAmount(this, title, item.budget, value -> {
             prefs.setCategoryBudget(item.category.key, value);
             load();

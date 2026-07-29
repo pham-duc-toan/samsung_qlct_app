@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_cat_item_bg"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="8dp">
+
+    <View
+        android:id="@+id/swatch"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_circle"
+        android:backgroundTint="@color/primary" />
+
+</FrameLayout>

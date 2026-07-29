@@ -91,7 +91,7 @@ public class CategoryBudgetAdapter extends RecyclerView.Adapter<CategoryBudgetAd
             int catColor = ContextCompat.getColor(itemView.getContext(), item.category.colorRes);
             icon.setImageResource(item.category.iconRes);
             icon.setBackgroundTintList(ColorStateList.valueOf(catColor));
-            name.setText(item.category.nameRes);
+            name.setText(item.category.name);
 
             if (item.budget <= 0) {
                 percent.setVisibility(View.GONE);

@@ -113,7 +113,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             icon.setImageResource(cat.iconRes);
             icon.setBackgroundTintList(ColorStateList.valueOf(color));
 
-            title.setText(cat.nameRes);
+            title.setText(cat.name);
             if (t.note == null || t.note.trim().isEmpty()) {
                 note.setVisibility(View.GONE);
             } else {
