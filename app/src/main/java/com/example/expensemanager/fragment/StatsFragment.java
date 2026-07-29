@@ -122,24 +122,31 @@ public class StatsFragment extends Fragment {
     /** Opens a date picker for either end of the custom range. */
     private void pickRangeDate(boolean isFrom) {
         Calendar target = isFrom ? rangeFrom : rangeTo;
-        new DatePickerDialog(requireContext(), (view, year, monthOfYear, dayOfMonth) -> {
+        DatePickerDialog dialog = new DatePickerDialog(requireContext(), (view, year, monthOfYear, dayOfMonth) -> {
             target.set(Calendar.YEAR, year);
             target.set(Calendar.MONTH, monthOfYear);
             target.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             loadRange();
-        }, target.get(Calendar.YEAR), target.get(Calendar.MONTH), target.get(Calendar.DAY_OF_MONTH)).show();
+        }, target.get(Calendar.YEAR), target.get(Calendar.MONTH), target.get(Calendar.DAY_OF_MONTH));
+
+        // Disable the invalid days on the other end so the range can't cross over:
+        // "from" can't be after "to", and "to" can't be before "from".
+        if (isFrom) {
+            dialog.getDatePicker().setMaxDate(rangeTo.getTimeInMillis());
+        } else {
+            dialog.getDatePicker().setMinDate(rangeFrom.getTimeInMillis());
+        }
+        dialog.show();
     }
 
-    /** Expense breakdown for the freely chosen [from, to] range (inclusive). */
+    /** Expense breakdown for the chosen [from, to] range (inclusive). */
     private void loadRange() {
-        long fromDay = DateUtil.dayKey(rangeFrom.getTimeInMillis());
-        long toDay = DateUtil.dayKey(rangeTo.getTimeInMillis());
-        long start = Math.min(fromDay, toDay);
-        long endInclusive = Math.max(fromDay, toDay);
+        long start = DateUtil.dayKey(rangeFrom.getTimeInMillis());
+        long endInclusive = DateUtil.dayKey(rangeTo.getTimeInMillis());
         long end = endInclusive + DAY_MS; // include the whole 'to' day
 
-        tvRangeFrom.setText(getString(R.string.range_from_label, DateUtil.formatDate(start)));
-        tvRangeTo.setText(getString(R.string.range_to_label, DateUtil.formatDate(endInclusive)));
+        tvRangeFrom.setText(getString(R.string.range_from_label, DateUtil.formatDate(rangeFrom.getTimeInMillis())));
+        tvRangeTo.setText(getString(R.string.range_to_label, DateUtil.formatDate(rangeTo.getTimeInMillis())));
 
         LinkedHashMap<String, Double> byCategory = db.expenseByCategory(start, end);
         double total = 0;
