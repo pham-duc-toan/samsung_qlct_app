@@ -214,6 +214,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_CAT, CAT_KEY + "=?", new String[]{key});
     }
 
+    /** Persists a new ordering: sort_order becomes each key's index in the list. */
+    public void setCategoryOrder(List<String> keysInOrder) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (int i = 0; i < keysInOrder.size(); i++) {
+                ContentValues v = new ContentValues();
+                v.put(CAT_SORT, i);
+                db.update(TABLE_CAT, v, CAT_KEY + "=?", new String[]{keysInOrder.get(i)});
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private int nextSort() {
         Cursor c = getReadableDatabase().rawQuery(
                 "SELECT COALESCE(MAX(" + CAT_SORT + "),-1)+1 FROM " + TABLE_CAT, null);

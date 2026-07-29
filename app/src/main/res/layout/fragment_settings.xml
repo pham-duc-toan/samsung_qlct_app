@@ -192,6 +192,39 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Security -->
+        <TextView
+            style="@style/SettingsSection"
+            android:text="@string/security_section" />
+
+        <androidx.cardview.widget.CardView
+            style="@style/SettingsCard">
+
+            <LinearLayout
+                android:id="@+id/row_lock"
+                style="@style/SettingsRow">
+
+                <ImageView
+                    style="@style/SettingsBubble"
+                    android:backgroundTint="@color/cat_education"
+                    android:src="@drawable/ic_settings" />
+
+                <LinearLayout style="@style/SettingsRowText">
+
+                    <TextView
+                        style="@style/SettingsTitle"
+                        android:text="@string/pin_lock" />
+
+                    <TextView
+                        android:id="@+id/tv_lock_value"
+                        style="@style/SettingsSubtitle"
+                        tools:text="Đang tắt" />
+                </LinearLayout>
+
+                <ImageView style="@style/SettingsChevron" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- Data -->
         <TextView
             style="@style/SettingsSection"

@@ -9,6 +9,9 @@ import com.example.expensemanager.util.ReminderScheduler;
 /** Applies the saved theme, loads categories and creates the notification channel on startup. */
 public class ExpenseApp extends Application {
 
+    /** True once the PIN has been entered this process; reset when the process dies. */
+    public static boolean unlocked = false;
+
     @Override
     public void onCreate() {
         super.onCreate();

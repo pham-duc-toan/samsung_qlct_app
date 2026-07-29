@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,15 +21,19 @@ import com.example.expensemanager.AddTransactionActivity;
 import com.example.expensemanager.R;
 import com.example.expensemanager.adapter.TransactionAdapter;
 import com.example.expensemanager.db.DatabaseHelper;
+import com.example.expensemanager.model.Category;
 import com.example.expensemanager.model.Transaction;
 import com.example.expensemanager.util.CurrencyUtil;
 import com.example.expensemanager.util.DateUtil;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /** Full transaction history for one month, with month navigation, search and type filter. */
 public class TransactionsFragment extends Fragment {
@@ -41,9 +47,13 @@ public class TransactionsFragment extends Fragment {
     private TextView tvExpense;
     private EditText etSearch;
     private ChipGroup chipGroup;
+    private ImageView btnFilterCategory;
     private RecyclerView rv;
     private View layoutEmpty;
     private TextView tvEmpty;
+
+    /** Selected category keys; empty means "all categories". */
+    private final Set<String> categoryFilter = new HashSet<>();
 
     /** The current month's transactions before search/type filtering. */
     private List<Transaction> monthList = new ArrayList<>();
@@ -64,6 +74,7 @@ public class TransactionsFragment extends Fragment {
         tvExpense = view.findViewById(R.id.tv_month_expense);
         etSearch = view.findViewById(R.id.et_search);
         chipGroup = view.findViewById(R.id.chip_group);
+        btnFilterCategory = view.findViewById(R.id.btn_filter_category);
         rv = view.findViewById(R.id.rv_transactions);
         layoutEmpty = view.findViewById(R.id.layout_empty);
         tvEmpty = view.findViewById(R.id.tv_empty);
@@ -88,6 +99,46 @@ public class TransactionsFragment extends Fragment {
         });
 
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilter());
+
+        btnFilterCategory.setOnClickListener(v -> showCategoryFilterDialog());
+        updateFilterIcon();
+    }
+
+    /** Multi-select dialog to filter the list by one or more categories. */
+    private void showCategoryFilterDialog() {
+        List<Category> categories = db.getCategories(requireContext());
+        String[] names = new String[categories.size()];
+        boolean[] checked = new boolean[categories.size()];
+        for (int i = 0; i < categories.size(); i++) {
+            names[i] = categories.get(i).name;
+            checked[i] = categoryFilter.contains(categories.get(i).key);
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.filter_by_category)
+                .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton(R.string.filter_apply, (dialog, which) -> {
+                    categoryFilter.clear();
+                    for (int i = 0; i < categories.size(); i++) {
+                        if (checked[i]) {
+                            categoryFilter.add(categories.get(i).key);
+                        }
+                    }
+                    updateFilterIcon();
+                    applyFilter();
+                })
+                .setNeutralButton(R.string.filter_clear, (dialog, which) -> {
+                    categoryFilter.clear();
+                    updateFilterIcon();
+                    applyFilter();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void updateFilterIcon() {
+        int color = categoryFilter.isEmpty() ? R.color.text_secondary : R.color.primary;
+        btnFilterCategory.setColorFilter(ContextCompat.getColor(requireContext(), color));
     }
 
     @Override
@@ -120,6 +171,9 @@ public class TransactionsFragment extends Fragment {
                 continue;
             }
             if (checkedId == R.id.chip_expense && t.isIncome()) {
+                continue;
+            }
+            if (!categoryFilter.isEmpty() && !categoryFilter.contains(t.categoryKey)) {
                 continue;
             }
             if (!query.isEmpty()) {

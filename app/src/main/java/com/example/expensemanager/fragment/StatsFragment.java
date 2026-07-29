@@ -41,6 +41,7 @@ public class StatsFragment extends Fragment {
 
     private TextView tvMonth;
     private TextView tvTotal;
+    private TextView tvCompare;
     private TextView tvNoData;
     private PieChartView pieChart;
     private BarChartView barChart;
@@ -70,6 +71,7 @@ public class StatsFragment extends Fragment {
 
         tvMonth = view.findViewById(R.id.tv_month);
         tvTotal = view.findViewById(R.id.tv_total_spent);
+        tvCompare = view.findViewById(R.id.tv_compare);
         tvNoData = view.findViewById(R.id.tv_no_data);
         pieChart = view.findViewById(R.id.pie_chart);
         barChart = view.findViewById(R.id.bar_chart);
@@ -185,12 +187,36 @@ public class StatsFragment extends Fragment {
         barChart.setData(groups);
     }
 
+    /** Compares the selected month's expense with the previous month. */
+    private void updateCompare(int year, int month0, long thisStart, long thisEnd) {
+        double thisExpense = db.totalOf(Transaction.TYPE_EXPENSE, thisStart, thisEnd);
+        Calendar prev = Calendar.getInstance();
+        prev.set(year, month0, 1);
+        prev.add(Calendar.MONTH, -1);
+        long prevStart = DateUtil.startOfMonth(prev.get(Calendar.YEAR), prev.get(Calendar.MONTH));
+        double prevExpense = db.totalOf(Transaction.TYPE_EXPENSE, prevStart, thisStart);
+
+        if (prevExpense <= 0) {
+            tvCompare.setText(R.string.compare_no_prev);
+            tvCompare.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
+            return;
+        }
+
+        double diff = thisExpense - prevExpense;
+        int pct = (int) Math.round(Math.abs(diff) / prevExpense * 100.0);
+        String arrow = diff > 0 ? "▲" : (diff < 0 ? "▼" : "•");
+        int colorRes = diff > 0 ? R.color.expense : R.color.income;
+        tvCompare.setText(getString(R.string.compare_format, arrow, pct, CurrencyUtil.format(Math.abs(diff))));
+        tvCompare.setTextColor(ContextCompat.getColor(requireContext(), colorRes));
+    }
+
     private void loadData() {
         int year = month.get(Calendar.YEAR);
         int m = month.get(Calendar.MONTH);
         long start = DateUtil.startOfMonth(year, m);
         long end = DateUtil.startOfNextMonth(year, m);
         tvMonth.setText(DateUtil.monthLabel(year, m));
+        updateCompare(year, m, start, end);
 
         LinkedHashMap<String, Double> byCategory = db.expenseByCategory(start, end);
         double total = 0;

@@ -23,6 +23,8 @@ import com.example.expensemanager.db.DatabaseHelper;
 import com.example.expensemanager.model.Category;
 import com.example.expensemanager.model.Transaction;
 import com.example.expensemanager.util.DateUtil;
+import com.example.expensemanager.util.MoneyTextWatcher;
+import com.example.expensemanager.widget.BalanceWidgetProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -62,6 +64,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         db = DatabaseHelper.getInstance(this);
 
         etAmount = findViewById(R.id.et_amount);
+        etAmount.addTextChangedListener(new MoneyTextWatcher(etAmount));
         etNote = findViewById(R.id.et_note);
         tvTitle = findViewById(R.id.tv_title);
         tvDate = findViewById(R.id.tv_date);
@@ -144,13 +147,7 @@ public class AddTransactionActivity extends AppCompatActivity {
     }
 
     private void save() {
-        String raw = etAmount.getText().toString().trim();
-        long amount;
-        try {
-            amount = Long.parseLong(raw);
-        } catch (NumberFormatException e) {
-            amount = 0;
-        }
+        long amount = MoneyTextWatcher.parse(etAmount.getText());
         if (amount <= 0) {
             Toast.makeText(this, R.string.err_amount, Toast.LENGTH_SHORT).show();
             return;
@@ -175,6 +172,7 @@ public class AddTransactionActivity extends AppCompatActivity {
             db.insert(t);
         }
 
+        BalanceWidgetProvider.refresh(this);
         Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
         finish();
     }
@@ -189,6 +187,7 @@ public class AddTransactionActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
                     db.delete(editing.id);
+                    BalanceWidgetProvider.refresh(this);
                     Toast.makeText(this, R.string.deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })

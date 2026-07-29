@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.expensemanager.util.Prefs;
 import com.example.expensemanager.fragment.HomeFragment;
 import com.example.expensemanager.fragment.SettingsFragment;
 import com.example.expensemanager.fragment.StatsFragment;
@@ -38,6 +39,15 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             nav.setSelectedItemId(R.id.nav_home);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Gate the app behind the PIN screen once per process launch.
+        if (new Prefs(this).isLockEnabled() && !ExpenseApp.unlocked) {
+            startActivity(new Intent(this, LockActivity.class));
         }
     }
 

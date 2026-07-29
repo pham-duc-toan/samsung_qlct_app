@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +52,7 @@ public class SettingsFragment extends Fragment {
     private TextView tvBudgetValue;
     private TextView tvThemeValue;
     private TextView tvReminderValue;
+    private TextView tvLockValue;
     private SwitchMaterial switchReminder;
 
     // Runtime POST_NOTIFICATIONS request (Android 13+).
@@ -78,6 +81,7 @@ public class SettingsFragment extends Fragment {
         tvBudgetValue = view.findViewById(R.id.tv_budget_value);
         tvThemeValue = view.findViewById(R.id.tv_theme_value);
         tvReminderValue = view.findViewById(R.id.tv_reminder_value);
+        tvLockValue = view.findViewById(R.id.tv_lock_value);
         switchReminder = view.findViewById(R.id.switch_reminder);
 
         view.findViewById(R.id.row_budget).setOnClickListener(v ->
@@ -89,6 +93,7 @@ public class SettingsFragment extends Fragment {
         view.findViewById(R.id.row_theme).setOnClickListener(v -> showThemeDialog());
         view.findViewById(R.id.row_reminder).setOnClickListener(v -> showTimePicker());
         switchReminder.setOnClickListener(v -> onReminderToggled());
+        view.findViewById(R.id.row_lock).setOnClickListener(v -> onLockClicked());
         view.findViewById(R.id.row_export).setOnClickListener(v -> exportCsv());
         view.findViewById(R.id.row_delete_all).setOnClickListener(v -> confirmDeleteAll());
 
@@ -111,6 +116,55 @@ public class SettingsFragment extends Fragment {
         tvReminderValue.setText(prefs.isReminderEnabled()
                 ? getString(R.string.reminder_at, formatTime(prefs.getReminderHour(), prefs.getReminderMinute()))
                 : getString(R.string.reminder_off));
+
+        tvLockValue.setText(prefs.isLockEnabled() ? R.string.pin_lock_on : R.string.pin_lock_off);
+    }
+
+    // -------------------------------------------------------------- App lock
+
+    private void onLockClicked() {
+        if (prefs.isLockEnabled()) {
+            String[] options = {getString(R.string.pin_change), getString(R.string.pin_disable)};
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.pin_lock)
+                    .setItems(options, (dialog, which) -> {
+                        if (which == 0) {
+                            promptSetPin();
+                        } else {
+                            prefs.clearPin();
+                            refresh();
+                            Toast.makeText(requireContext(), R.string.pin_disabled, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        } else {
+            promptSetPin();
+        }
+    }
+
+    private void promptSetPin() {
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setHint(R.string.pin_hint);
+        int pad = (int) (20 * getResources().getDisplayMetrics().density);
+        input.setPadding(pad, pad, pad, pad);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.pin_set_title)
+                .setView(input)
+                .setPositiveButton(R.string.save, (dialog, which) -> {
+                    String pin = input.getText().toString().trim();
+                    if (pin.length() < 4) {
+                        Toast.makeText(requireContext(), R.string.pin_too_short, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    prefs.setPin(pin);
+                    refresh();
+                    Toast.makeText(requireContext(), R.string.pin_enabled, Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     // ---------------------------------------------------------------- Theme

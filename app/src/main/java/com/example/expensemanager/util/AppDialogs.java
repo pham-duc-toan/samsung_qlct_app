@@ -24,6 +24,7 @@ public class AppDialogs {
     public static void showAmount(Context context, CharSequence title, long current, OnAmount callback) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_budget, null, false);
         EditText input = view.findViewById(R.id.et_budget);
+        input.addTextChangedListener(new MoneyTextWatcher(input));
         if (current > 0) {
             input.setText(String.valueOf(current));
             input.setSelection(input.getText().length());
@@ -33,12 +34,7 @@ public class AppDialogs {
                 .setTitle(title)
                 .setView(view)
                 .setPositiveButton(R.string.save, (dialog, which) -> {
-                    long value;
-                    try {
-                        value = Long.parseLong(input.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        value = 0;
-                    }
+                    long value = MoneyTextWatcher.parse(input.getText());
                     if (callback != null) {
                         callback.onAmount(Math.max(0L, value));
                     }

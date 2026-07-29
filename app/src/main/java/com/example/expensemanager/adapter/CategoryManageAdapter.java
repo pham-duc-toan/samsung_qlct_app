@@ -39,6 +39,20 @@ public class CategoryManageAdapter extends RecyclerView.Adapter<CategoryManageAd
         notifyDataSetChanged();
     }
 
+    /** Current items, in their (possibly reordered) display order. */
+    public List<Category> getItems() {
+        return items;
+    }
+
+    /** Moves an item for drag-to-reorder; caller persists the new order on drop. */
+    public void moveItem(int from, int to) {
+        if (from < 0 || to < 0 || from >= items.size() || to >= items.size()) {
+            return;
+        }
+        items.add(to, items.remove(from));
+        notifyItemMoved(from, to);
+    }
+
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
