@@ -27,6 +27,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    <color name="action_blue">#2F80ED</color>
 
     <!-- Category palette (also used by the pie chart) -->
     <color name="cat_food">#FF6B6B</color>

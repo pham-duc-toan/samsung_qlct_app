@@ -26,6 +26,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 public class AddCategoryActivity extends AppCompatActivity {
 
     private static final String EXTRA_KEY = "extra_category_key";
+    // The universal fallback category (used by Category.byKey); deleting it would crash the app.
+    private static final String KEY_OTHER = "other";
 
     // Icons and colors offered by the pickers (resource entry names present in res/).
     private static final String[] ICONS = {
@@ -104,7 +106,10 @@ public class AddCategoryActivity extends AppCompatActivity {
             return;
         }
         tvTitle.setText(R.string.edit_category);
-        btnDelete.setVisibility(View.VISIBLE);
+        // "Khác" is the fallback for deleted categories, so it must never be removed.
+        if (!KEY_OTHER.equals(editingKey)) {
+            btnDelete.setVisibility(View.VISIBLE);
+        }
         etName.setText(def.displayName);
         etName.setSelection(etName.getText().length());
         income = def.income;
@@ -135,6 +140,10 @@ public class AddCategoryActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.err_cat_name, Toast.LENGTH_SHORT).show();
             return;
         }
+        if (isDuplicateName(name)) {
+            Toast.makeText(this, R.string.err_cat_dup, Toast.LENGTH_SHORT).show();
+            return;
+        }
         String icon = iconAdapter.getSelected();
         String color = colorAdapter.getSelected();
 
@@ -149,8 +158,21 @@ public class AddCategoryActivity extends AppCompatActivity {
         finish();
     }
 
+    /** True if another category already uses this name (case-insensitive). */
+    private boolean isDuplicateName(String name) {
+        for (DatabaseHelper.CategoryDef def : db.getCategoryDefs(this)) {
+            if (def.key.equals(editingKey)) {
+                continue; // don't compare a category against itself when editing
+            }
+            if (def.displayName.trim().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void confirmDelete() {
-        if (editingKey == null) {
+        if (editingKey == null || KEY_OTHER.equals(editingKey)) {
             return;
         }
         new MaterialAlertDialogBuilder(this)

@@ -47,6 +47,7 @@
             android:focusable="true"
             android:padding="9dp"
             android:src="@drawable/ic_delete"
+            android:tint="@color/action_blue"
             android:visibility="gone"
             tools:visibility="visible" />
     </LinearLayout>

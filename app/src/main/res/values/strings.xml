@@ -136,6 +136,7 @@
     <string name="cat_color">Màu sắc</string>
     <string name="cat_save">Lưu danh mục</string>
     <string name="err_cat_name">Vui lòng nhập tên danh mục</string>
+    <string name="err_cat_dup">Tên danh mục đã tồn tại</string>
     <string name="cat_saved">Đã lưu danh mục</string>
     <string name="cat_deleted">Đã xóa danh mục</string>
     <string name="delete_cat_title">Xóa danh mục?</string>
