@@ -1,5 +1,6 @@
 package com.example.expensemanager.fragment;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,8 @@ import java.util.Map;
 /** Monthly spending breakdown: a donut chart plus a per-category legend. */
 public class StatsFragment extends Fragment {
 
+    private static final long DAY_MS = 24L * 60 * 60 * 1000;
+
     private DatabaseHelper db;
     private StatAdapter adapter;
     private final Calendar month = Calendar.getInstance();
@@ -43,6 +46,16 @@ public class StatsFragment extends Fragment {
     private BarChartView barChart;
     private View chartContainer;
     private RecyclerView rv;
+
+    // Custom date-range statistics.
+    private StatAdapter rangeAdapter;
+    private final Calendar rangeFrom = Calendar.getInstance();
+    private final Calendar rangeTo = Calendar.getInstance();
+    private TextView tvRangeFrom;
+    private TextView tvRangeTo;
+    private TextView tvRangeTotal;
+    private TextView tvRangeNoData;
+    private RecyclerView rvRange;
 
     @Nullable
     @Override
@@ -80,6 +93,20 @@ public class StatsFragment extends Fragment {
             month.add(Calendar.MONTH, 1);
             loadData();
         });
+
+        // Date-range section: default from the 1st of this month to today.
+        rangeFrom.set(Calendar.DAY_OF_MONTH, 1);
+        tvRangeFrom = view.findViewById(R.id.btn_range_from);
+        tvRangeTo = view.findViewById(R.id.btn_range_to);
+        tvRangeTotal = view.findViewById(R.id.tv_range_total);
+        tvRangeNoData = view.findViewById(R.id.tv_range_no_data);
+        rvRange = view.findViewById(R.id.rv_range);
+        rvRange.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rangeAdapter = new StatAdapter();
+        rvRange.setAdapter(rangeAdapter);
+
+        tvRangeFrom.setOnClickListener(v -> pickRangeDate(true));
+        tvRangeTo.setOnClickListener(v -> pickRangeDate(false));
     }
 
     @Override
@@ -87,6 +114,55 @@ public class StatsFragment extends Fragment {
         super.onResume();
         loadData();
         loadTrend();
+        loadRange();
+    }
+
+    /** Opens a date picker for either end of the custom range. */
+    private void pickRangeDate(boolean isFrom) {
+        Calendar target = isFrom ? rangeFrom : rangeTo;
+        new DatePickerDialog(requireContext(), (view, year, monthOfYear, dayOfMonth) -> {
+            target.set(Calendar.YEAR, year);
+            target.set(Calendar.MONTH, monthOfYear);
+            target.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            loadRange();
+        }, target.get(Calendar.YEAR), target.get(Calendar.MONTH), target.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    /** Expense breakdown for the freely chosen [from, to] range (inclusive). */
+    private void loadRange() {
+        long fromDay = DateUtil.dayKey(rangeFrom.getTimeInMillis());
+        long toDay = DateUtil.dayKey(rangeTo.getTimeInMillis());
+        long start = Math.min(fromDay, toDay);
+        long endInclusive = Math.max(fromDay, toDay);
+        long end = endInclusive + DAY_MS; // include the whole 'to' day
+
+        tvRangeFrom.setText(getString(R.string.range_from_label, DateUtil.formatDate(start)));
+        tvRangeTo.setText(getString(R.string.range_to_label, DateUtil.formatDate(endInclusive)));
+
+        LinkedHashMap<String, Double> byCategory = db.expenseByCategory(start, end);
+        double total = 0;
+        for (double value : byCategory.values()) {
+            total += value;
+        }
+
+        if (byCategory.isEmpty() || total <= 0) {
+            tvRangeTotal.setText(CurrencyUtil.format(0));
+            tvRangeNoData.setVisibility(View.VISIBLE);
+            rangeAdapter.submit(new ArrayList<>());
+            return;
+        }
+
+        tvRangeNoData.setVisibility(View.GONE);
+        tvRangeTotal.setText(CurrencyUtil.format(total));
+
+        List<StatAdapter.Item> items = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : byCategory.entrySet()) {
+            Category category = Category.byKey(entry.getKey());
+            double amount = entry.getValue();
+            int percent = (int) Math.round(amount / total * 100.0);
+            items.add(new StatAdapter.Item(category, amount, percent));
+        }
+        rangeAdapter.submit(items);
     }
 
     /** Last 6 months of income vs expense totals, ending at the current month. */

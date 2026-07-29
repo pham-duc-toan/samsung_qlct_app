@@ -27,6 +27,13 @@
     <string name="no_stat_data">Chưa có dữ liệu chi tiêu trong tháng này.</string>
     <string name="total_spent">Tổng chi</string>
 
+    <!-- Custom date-range statistics -->
+    <string name="stat_by_range">Thống kê theo khoảng thời gian</string>
+    <string name="range_from_label">Từ: %1$s</string>
+    <string name="range_to_label">Đến: %1$s</string>
+    <string name="range_total">Tổng chi trong khoảng</string>
+    <string name="range_no_data">Không có chi tiêu trong khoảng đã chọn.</string>
+
     <!-- Add / Edit -->
     <string name="add_transaction">Thêm giao dịch</string>
     <string name="edit_transaction">Sửa giao dịch</string>

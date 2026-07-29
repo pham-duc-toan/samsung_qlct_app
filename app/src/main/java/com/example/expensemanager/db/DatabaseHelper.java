@@ -2,24 +2,28 @@ package com.example.expensemanager.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.expensemanager.model.Category;
 import com.example.expensemanager.model.Transaction;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
- * Local SQLite storage. Single table of transactions, no backend, no network.
- * Exposed as a singleton so every screen shares one connection.
+ * Local SQLite storage. Two tables — transactions and categories — no backend,
+ * no network. Exposed as a singleton so every screen shares one connection.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "expense_manager.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     public static final String TABLE = "transactions";
     public static final String COL_ID = "id";
@@ -28,6 +32,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_CATEGORY = "category";
     public static final String COL_NOTE = "note";
     public static final String COL_DATE = "date";
+
+    // Category table: definitions now live in the DB instead of being hardcoded.
+    // name/icon/color hold resource entry names (e.g. "cat_food", "ic_food") that
+    // are resolved back to resource ids at load time, so the visuals stay intact.
+    public static final String TABLE_CAT = "categories";
+    public static final String CAT_KEY = "cat_key";
+    public static final String CAT_NAME = "name";
+    public static final String CAT_ICON = "icon";
+    public static final String CAT_COLOR = "color";
+    public static final String CAT_INCOME = "income";
+    public static final String CAT_SORT = "sort_order";
 
     private static final String ORDER_NEWEST = COL_DATE + " DESC, " + COL_ID + " DESC";
 
@@ -53,27 +68,157 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_CATEGORY + " TEXT NOT NULL, " +
                 COL_NOTE + " TEXT, " +
                 COL_DATE + " INTEGER NOT NULL)");
+
+        db.execSQL("CREATE TABLE " + TABLE_CAT + " (" +
+                CAT_KEY + " TEXT PRIMARY KEY, " +
+                CAT_NAME + " TEXT NOT NULL, " +
+                CAT_ICON + " TEXT NOT NULL, " +
+                CAT_COLOR + " TEXT NOT NULL, " +
+                CAT_INCOME + " INTEGER NOT NULL, " +
+                CAT_SORT + " INTEGER NOT NULL)");
+
+        seedCategories(db);
         seedSampleData(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAT);
         onCreate(db);
     }
 
-    /** A handful of demo rows so the first launch isn't an empty screen. */
+    // ----------------------------------------------------------- Category seed
+
+    /** The predefined categories, now stored in the DB instead of in code. */
+    private void seedCategories(SQLiteDatabase db) {
+        int order = 0;
+        // Expense categories
+        insertCat(db, "food", "cat_food", "ic_food", "cat_food", 0, order++);
+        insertCat(db, "coffee", "cat_coffee", "ic_coffee", "cat_coffee", 0, order++);
+        insertCat(db, "transport", "cat_transport", "ic_transport", "cat_transport", 0, order++);
+        insertCat(db, "shopping", "cat_shopping", "ic_shopping", "cat_shopping", 0, order++);
+        insertCat(db, "bills", "cat_bills", "ic_bills", "cat_bills", 0, order++);
+        insertCat(db, "entertainment", "cat_entertainment", "ic_entertainment", "cat_entertainment", 0, order++);
+        insertCat(db, "health", "cat_health", "ic_health", "cat_health", 0, order++);
+        insertCat(db, "education", "cat_education", "ic_education", "cat_education", 0, order++);
+        insertCat(db, "home", "cat_home", "ic_home_cat", "cat_home", 0, order++);
+        insertCat(db, "other", "cat_other", "ic_other", "cat_other", 0, order++);
+        // Income categories
+        insertCat(db, "salary", "cat_salary", "ic_salary", "cat_salary", 1, order++);
+        insertCat(db, "bonus", "cat_bonus", "ic_bonus", "cat_bonus", 1, order++);
+        insertCat(db, "invest", "cat_invest", "ic_invest", "cat_invest", 1, order++);
+        insertCat(db, "gift", "cat_gift", "ic_gift", "cat_gift", 1, order++);
+        insertCat(db, "other_income", "cat_other_income", "ic_other", "cat_other", 1, order++);
+    }
+
+    private void insertCat(SQLiteDatabase db, String key, String name, String icon,
+                           String color, int income, int sort) {
+        ContentValues v = new ContentValues();
+        v.put(CAT_KEY, key);
+        v.put(CAT_NAME, name);
+        v.put(CAT_ICON, icon);
+        v.put(CAT_COLOR, color);
+        v.put(CAT_INCOME, income);
+        v.put(CAT_SORT, sort);
+        db.insert(TABLE_CAT, null, v);
+    }
+
+    /** Reads the category table and resolves resource entry names back to ids. */
+    public List<Category> getCategories(Context context) {
+        List<Category> list = new ArrayList<>();
+        String pkg = context.getPackageName();
+        Resources res = context.getResources();
+        Cursor c = getReadableDatabase().query(TABLE_CAT, null, null, null, null, null, CAT_SORT + " ASC");
+        while (c.moveToNext()) {
+            String key = c.getString(c.getColumnIndexOrThrow(CAT_KEY));
+            String name = c.getString(c.getColumnIndexOrThrow(CAT_NAME));
+            String icon = c.getString(c.getColumnIndexOrThrow(CAT_ICON));
+            String color = c.getString(c.getColumnIndexOrThrow(CAT_COLOR));
+            boolean income = c.getInt(c.getColumnIndexOrThrow(CAT_INCOME)) == 1;
+            int nameRes = res.getIdentifier(name, "string", pkg);
+            int iconRes = res.getIdentifier(icon, "drawable", pkg);
+            int colorRes = res.getIdentifier(color, "color", pkg);
+            list.add(new Category(key, nameRes, iconRes, colorRes, income));
+        }
+        c.close();
+        return list;
+    }
+
+    // -------------------------------------------------------- Transaction seed
+
+    /** Generates a few months of demo transactions so charts and stats look alive. */
     private void seedSampleData(SQLiteDatabase db) {
-        long now = System.currentTimeMillis();
-        long day = 24L * 60 * 60 * 1000;
-        insertRaw(db, 8500000, Transaction.TYPE_INCOME, "salary", "Lương tháng", now - day);
-        insertRaw(db, 65000, Transaction.TYPE_EXPENSE, "food", "Cơm trưa văn phòng", now - day);
-        insertRaw(db, 35000, Transaction.TYPE_EXPENSE, "coffee", "Cà phê sáng", now - 2 * day);
-        insertRaw(db, 250000, Transaction.TYPE_EXPENSE, "transport", "Đổ xăng xe", now - 3 * day);
-        insertRaw(db, 450000, Transaction.TYPE_EXPENSE, "shopping", "Mua áo", now - 4 * day);
-        insertRaw(db, 200000, Transaction.TYPE_EXPENSE, "bills", "Tiền điện", now - 5 * day);
-        insertRaw(db, 120000, Transaction.TYPE_EXPENSE, "entertainment", "Xem phim", now - 6 * day);
-        insertRaw(db, 500000, Transaction.TYPE_INCOME, "bonus", "Thưởng dự án", now - 7 * day);
+        Random rnd = new Random(20240729L); // fixed seed → same demo data every install
+        String[] cats = {"food", "coffee", "transport", "shopping", "bills",
+                "entertainment", "health", "education", "home", "other"};
+
+        for (int back = 7; back >= 0; back--) {
+            Calendar m = Calendar.getInstance();
+            m.add(Calendar.MONTH, -back);
+            int year = m.get(Calendar.YEAR);
+            int month0 = m.get(Calendar.MONTH);
+            int lastDay = m.getActualMaximum(Calendar.DAY_OF_MONTH);
+            int dayLimit = (back == 0) ? m.get(Calendar.DAY_OF_MONTH) : lastDay;
+
+            // Monthly salary near the start of the month.
+            insertRaw(db, 8000000 + rnd.nextInt(6) * 250000L, Transaction.TYPE_INCOME, "salary",
+                    "Lương tháng " + (month0 + 1), dateAt(year, month0, Math.min(5, dayLimit)));
+            // Occasional bonus and investment income.
+            if (rnd.nextInt(2) == 0) {
+                insertRaw(db, 300000 + rnd.nextInt(8) * 100000L, Transaction.TYPE_INCOME, "bonus",
+                        "Thưởng", dateAt(year, month0, 1 + rnd.nextInt(dayLimit)));
+            }
+            if (rnd.nextInt(3) == 0) {
+                insertRaw(db, 500000 + rnd.nextInt(10) * 100000L, Transaction.TYPE_INCOME, "invest",
+                        "Lãi đầu tư", dateAt(year, month0, 1 + rnd.nextInt(dayLimit)));
+            }
+
+            int count = 18 + rnd.nextInt(12); // 18-29 expenses per month
+            for (int i = 0; i < count; i++) {
+                String cat = cats[rnd.nextInt(cats.length)];
+                int day = 1 + rnd.nextInt(dayLimit);
+                insertRaw(db, expenseAmount(cat, rnd), Transaction.TYPE_EXPENSE, cat,
+                        expenseNote(cat), dateAt(year, month0, day));
+            }
+        }
+    }
+
+    private static long dateAt(int year, int month0, int day) {
+        Calendar c = Calendar.getInstance();
+        c.set(year, month0, day, 12, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    private static double expenseAmount(String cat, Random rnd) {
+        switch (cat) {
+            case "food": return 30000 + rnd.nextInt(12) * 10000L;
+            case "coffee": return 25000 + rnd.nextInt(6) * 5000L;
+            case "transport": return 20000 + rnd.nextInt(10) * 15000L;
+            case "shopping": return 150000 + rnd.nextInt(10) * 80000L;
+            case "bills": return 100000 + rnd.nextInt(9) * 50000L;
+            case "entertainment": return 60000 + rnd.nextInt(8) * 30000L;
+            case "health": return 50000 + rnd.nextInt(10) * 40000L;
+            case "education": return 200000 + rnd.nextInt(8) * 100000L;
+            case "home": return 100000 + rnd.nextInt(10) * 60000L;
+            default: return 20000 + rnd.nextInt(10) * 20000L;
+        }
+    }
+
+    private static String expenseNote(String cat) {
+        switch (cat) {
+            case "food": return "Ăn uống";
+            case "coffee": return "Cà phê";
+            case "transport": return "Xăng xe / gửi xe";
+            case "shopping": return "Mua sắm";
+            case "bills": return "Hóa đơn";
+            case "entertainment": return "Giải trí";
+            case "health": return "Sức khỏe";
+            case "education": return "Học tập";
+            case "home": return "Nhà cửa";
+            default: return "Chi khác";
+        }
     }
 
     private void insertRaw(SQLiteDatabase db, double amount, String type, String cat, String note, long date) {
